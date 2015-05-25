@@ -483,19 +483,18 @@ class Morris.Grid extends Morris.EventEmitter
         .attr('stroke-width', @options.eventStrokeWidth)
       
       # Enlarge stroke and invoke eventHoverCallback when hovering
-      hover = new Morris.Hover(parent: @el)
+      h = new Morris.Hover(parent: @el)
       hoverIn = =>
         elm.animate({'stroke-width': strokeWidth + 3}, 25, 'linear')
         if @options.eventHoverCallback
           content = @options.eventHoverCallback i
-          hover.html(content)
-          hover.moveTo(x, @yEnd, true)
-          hover.show() 
-          @hover.hide()
-      
+          h.html(content)
+          h.moveTo(x, @yEnd, true)
+          h.show() 
+          
       hoverOut = =>
         elm.animate({'stroke-width': strokeWidth}, 25, 'linear')
-        hover.hide()
+        h.hide()
       
       elm.hover(hoverIn, hoverOut)
       
