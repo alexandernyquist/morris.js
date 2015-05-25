@@ -442,7 +442,7 @@ class Morris.Grid extends Morris.EventEmitter
   drawEvents: ->
     for event, i in @events
       color = @options.eventLineColors[i % @options.eventLineColors.length]
-      @drawEvent(event, color)
+      @drawEvent(i, event, color)
 
   drawGoal: (goal, color) ->
     y = Math.floor(@transY(goal)) + 0.5
@@ -455,7 +455,7 @@ class Morris.Grid extends Morris.EventEmitter
       .attr('stroke', color)
       .attr('stroke-width', @options.goalStrokeWidth)
 
-  drawEvent: (event, color) ->
+  drawEvent: (i, event, color) ->
     if event instanceof Array
       [from, to] = event
       from = Math.floor(@transX(from)) + 0.5
@@ -477,10 +477,28 @@ class Morris.Grid extends Morris.EventEmitter
       else
         path = "M#{@yStart},#{x}H#{@yEnd}"
 
-      @raphael.path(path)
+      strokeWidth = @options.eventStrokeWidth
+      elm = @raphael.path(path)
         .attr('stroke', color)
         .attr('stroke-width', @options.eventStrokeWidth)
-
+      
+      # Enlarge stroke and invoke eventHoverCallback when hovering
+      hover = new Morris.Hover(parent: @el)
+      hoverIn = =>
+        elm.animate({'stroke-width': strokeWidth + 3}, 25, 'linear')
+        if @options.eventHoverCallback
+          content = @options.eventHoverCallback i
+          hover.html(content)
+          hover.moveTo(x, @yEnd, true)
+          hover.show() 
+          @hover.hide()
+      
+      hoverOut = =>
+        elm.animate({'stroke-width': strokeWidth}, 25, 'linear')
+        hover.hide()
+      
+      elm.hover(hoverIn, hoverOut)
+      
   drawYAxisLabel: (xPos, yPos, text) ->
     label = @raphael.text(xPos, yPos, text)
       .attr('font-size', @options.gridTextSize)
